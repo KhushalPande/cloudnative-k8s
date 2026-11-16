@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudnative-service
+  labels:
+    app: cloudnative-app
+spec:
+  type: NodePort
+  selector:
+    app: cloudnative-app
+  ports:
+    - name: http
+      port: 80
+      targetPort: 5000
+      nodePort: 30080

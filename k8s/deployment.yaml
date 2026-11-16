@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudnative-app
+  labels:
+    app: cloudnative-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: cloudnative-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: cloudnative-app
+    spec:
+      containers:
+        - name: cloudnative-app
+          image: cloudnative-app:1.0
+          imagePullPolicy: IfNotPresent   # image is imported locally into k3s
+          ports:
+            - containerPort: 5000
+          envFrom:
+            - configMapRef:
+                name: cloudnative-config
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 10
